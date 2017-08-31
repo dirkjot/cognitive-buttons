@@ -10,7 +10,7 @@ import Time exposing (now, Time)
 
 type alias Model = {
         screen : Screen,
-        version : String,
+        version : String,  -- TODO ignored for now
         objects : List String,
         rts : List Time,
         startTime : Time}    
@@ -45,11 +45,20 @@ update msg model =
             ( { model | startTime = time, screen = Experiment }, Cmd.none )
         StopTime ->
             (model, Task.perform NextObject Time.now )
-        NextObject time -> ( { model | screen = Experiment
+        NextObject time ->
+            if List.length model.objects > 1
+                then
+                    ( { model | screen = Experiment
                                      , objects = (List.drop 1 model.objects)
                                      , rts = (time - model.startTime) :: model.rts
                                      , startTime = time}
-                           , Cmd.none )
+                      , Cmd.none )
+                else
+                    ( { model | screen = Summary
+                                     , objects = [ "finished" ] 
+                                     , rts = (time - model.startTime) :: model.rts
+                                     , startTime = 0}
+                      , Cmd.none )
 
                  
 
@@ -61,26 +70,23 @@ update msg model =
 view : Model -> Html Msg
 view model =
 
-    if model.screen == VersionChooser
-        then
+    case model.screen of
+        VersionChooser ->
                     div [] [ Html.h1 [] [ text "Choose a version to start" ] 
                            , div [] [ Html.button [ onClick ( StartVersion "A" ) ] [ text "Version A" ] ]
                            , div [] [ Html.button [ onClick ( StartVersion "B" ) ] [ text "Version B" ] ] ]
-        else
-            case List.head model.objects of
-                Just head -> 
-                    div [] [ Html.h1 [] [ text head ]  
+        Summary -> 
+                            div [] [ Html.h1 [] [ text "All done Summary" ]
+                                   , div [] [ text ( "Average reaction time " ++ toString ( round ( (List.sum model.rts ) / toFloat (List.length model.rts)))) ]
+                                   , div [] [ text ( "List of reaction times: " ++ ( String.join ","    ( List.reverse ( List.map toString model.rts )))) ]
+                                   ]
+        Experiment ->
+                    div [] [ Html.h1 [] [ text ( Maybe.withDefault "<oops>" ( List.head model.objects )) ]  
                            , div [] [ Html.button [ onClick StopTime ] [ text "Animal" ]  ]
                            , div [] [ Html.button [ onClick StopTime ] [ text "Plant" ]  ]
                            , div [] [ Html.button [ onClick StopTime ] [ text "Other"  ]  ]
                            ]
-                        
-                Nothing -> 
-                            div [] [ Html.h1 [] [ text "All done" ]
-                                   , div [] [ text ( "Average reaction time " ++ toString ( round ( (List.sum model.rts ) / toFloat (List.length model.rts)))) ]
-                                   , div [] [ text ( "List of reaction times: " ++ ( String.join ","    ( List.reverse ( List.map toString model.rts )))) ]
-                                   ]
-                             
+                                                     
                     
 
 
