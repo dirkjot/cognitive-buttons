@@ -1,0 +1,17 @@
+{
+  "name": "cognitive-buttons",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "elm": "^0.18.0"
+  },
+  "devDependencies": {
+    "elm-live": "^2.7.5",
+    "elm-test": "^0.18.8"
+  },
+  "scripts": {
+    "test": "exit 1"
+  },
+  "author": "Dirk P. Janssen",
+  "license": "Apache-2.0"
+}
