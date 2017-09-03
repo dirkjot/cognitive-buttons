@@ -1,7 +1,7 @@
 module Main exposing (..)
 import Task exposing (..)
-import Html exposing (Html, text, div, img)
--- import Html.Attributes exposing (src)
+import Html exposing (Html, text, div, img, span)
+import Html.Attributes exposing (src, class, style)
 import Html.Events exposing (onClick)
 import Time exposing (now, Time)
 
@@ -76,15 +76,15 @@ view model =
                            , div [] [ Html.button [ onClick ( StartVersion "A" ) ] [ text "Version A" ] ]
                            , div [] [ Html.button [ onClick ( StartVersion "B" ) ] [ text "Version B" ] ] ]
         Summary -> 
-                            div [] [ Html.h1 [] [ text "All done Summary" ]
+                            div [] [ Html.h1 [] [ text "Summary" ]
                                    , div [] [ text ( "Average reaction time " ++ toString ( round ( (List.sum model.rts ) / toFloat (List.length model.rts)))) ]
-                                   , div [] [ text ( "List of reaction times: " ++ ( String.join ","    ( List.reverse ( List.map toString model.rts )))) ]
+                                   , div [ class "rtblock" ] [ text ( "List of reaction times: " ++ ( String.join ","    ( List.reverse ( List.map toString model.rts )))) ]
                                    ]
         Experiment ->
-                    div [] [ Html.h1 [] [ text ( Maybe.withDefault "<oops>" ( List.head model.objects )) ]  
-                           , div [] [ Html.button [ onClick StopTime ] [ text "Animal" ]  ]
-                           , div [] [ Html.button [ onClick StopTime ] [ text "Plant" ]  ]
-                           , div [] [ Html.button [ onClick StopTime ] [ text "Other"  ]  ]
+                    div [ class "versionA" ] [ Html.h1 [class "stimulus"] [ text ( Maybe.withDefault "<oops>" ( List.head model.objects )) ]  
+                           , span [ class "buttonAnimal" ] [ Html.button [ onClick StopTime ] [ text "Animal" ]  ]
+                           , span [ class "buttonPlant" ] [ Html.button [ onClick StopTime ] [ text "Plant" ]  ]
+                           , span [ class "buttonOther" ] [ Html.button [ onClick StopTime ] [ text "Other"  ]  ]
                            ]
                                                      
                     
