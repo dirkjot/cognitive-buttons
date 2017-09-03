@@ -7,11 +7,18 @@ import Time exposing (now, Time)
 
 ---- MODEL ----
 
+type Answer =
+    Animal | Plant | Other
+
+type alias Prompt = {
+        name : String,
+        answer : Answer }
+        
 
 type alias Model = {
         screen : Screen,
         version : String,  -- TODO ignored for now
-        objects : List String,
+        objects : List Prompt,
         rts : List Time,
         startTime : Time}    
 
@@ -20,7 +27,8 @@ init : ( Model, Cmd Msg )
 init =
     ( { screen = VersionChooser
       , version = ""
-      , objects = [ "platypus", "daisy", "brick"  ]
+      -- , objects = [ "platypus", "daisy", "brick"  ]
+      , objects = [Prompt "platipus" Animal, Prompt "daisy" Plant, Prompt "brick" Other ]
       , rts = []
       , startTime = 0 }
     , Cmd.none )
@@ -35,6 +43,23 @@ type Msg
 
 type Screen
     = VersionChooser | Experiment | Summary
+
+nextObjectUpdate model time =
+            if List.length model.objects > 1
+                then
+                    ( { model | screen = Experiment
+                                     , objects = (List.drop 1 model.objects)
+                                     , rts = (time - model.startTime) :: model.rts
+                                     , startTime = time}
+                      , Cmd.none )
+                else
+                    ( { model | screen = Summary
+                                     , objects = [] 
+                                     , rts = (time - model.startTime) :: model.rts
+                                     , startTime = 0}
+                      , Cmd.none )
+    
+
       
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -46,20 +71,7 @@ update msg model =
         StopTime ->
             (model, Task.perform NextObject Time.now )
         NextObject time ->
-            if List.length model.objects > 1
-                then
-                    ( { model | screen = Experiment
-                                     , objects = (List.drop 1 model.objects)
-                                     , rts = (time - model.startTime) :: model.rts
-                                     , startTime = time}
-                      , Cmd.none )
-                else
-                    ( { model | screen = Summary
-                                     , objects = [ "finished" ] 
-                                     , rts = (time - model.startTime) :: model.rts
-                                     , startTime = 0}
-                      , Cmd.none )
-
+            nextObjectUpdate model time
                  
 
 
@@ -77,14 +89,17 @@ versionChooserScreen model =
 
 experimentScreen : Model -> Html Msg
 experimentScreen model =
-    div [ class model.version ] [
-         Html.h1 [class "stimulus"] [ text ( Maybe.withDefault "<oops>" ( List.head model.objects )) ]  ,
-         span [ class "buttonAnimal" ] [
-              Html.button [ onClick StopTime ] [ text "Animal" ]  ] ,
-         span [ class "buttonPlant" ] [
-              Html.button [ onClick StopTime ] [ text "Plant" ]  ] ,
-         span [ class "buttonOther" ] [
-              Html.button [ onClick StopTime ] [ text "Other"  ]  ]
+    let
+        promptName = .name (Maybe.withDefault (Prompt "" Other)  ( List.head model.objects ))
+    in
+        div [ class model.version ] [
+             Html.h1 [class "stimulus"] [ text promptName ] ,
+                 span [ class "buttonAnimal" ] [
+                      Html.button [ onClick StopTime ] [ text "Animal" ]  ] ,
+                 span [ class "buttonPlant" ] [
+                      Html.button [ onClick StopTime ] [ text "Plant" ]  ] ,
+                 span [ class "buttonOther" ] [
+                      Html.button [ onClick StopTime ] [ text "Other"  ]  ]
                              ]
         
 summaryScreen : Model -> Html Msg 
