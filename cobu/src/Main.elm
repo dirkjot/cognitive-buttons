@@ -65,28 +65,38 @@ update msg model =
 
 
 ---- VIEW ----
- 
 
+
+versionChooserScreen model =
+    div [] [ Html.h1 [] [ text "Choose a version to start" ] 
+           , div [] [ Html.button [ onClick ( StartVersion "A" ) ] [ text "Version A" ] ]
+           , div [] [ Html.button [ onClick ( StartVersion "B" ) ] [ text "Version B" ] ] ]
+        
+experimentScreen model =
+    div [ class "versionA" ] [ Html.h1 [class "stimulus"] [ text ( Maybe.withDefault "<oops>" ( List.head model.objects )) ]  
+                             , span [ class "buttonAnimal" ] [ Html.button [ onClick StopTime ] [ text "Animal" ]  ]
+                             , span [ class "buttonPlant" ] [ Html.button [ onClick StopTime ] [ text "Plant" ]  ]
+                             , span [ class "buttonOther" ] [ Html.button [ onClick StopTime ] [ text "Other"  ]  ]
+                             ]
+        
+        
+summaryScreen model =
+    div [] [ Html.h1 [] [ text "Summary" ]
+           , div [] [ text ( "Average reaction time " ++ toString ( round ( (List.sum model.rts ) / toFloat (List.length model.rts)))) ]
+           , div [ class "rtblock" ] [ text ( "List of reaction times: " ++ ( String.join ","    ( List.reverse ( List.map toString model.rts )))) ]
+           ]
+        
+        
 view : Model -> Html Msg
 view model =
 
     case model.screen of
         VersionChooser ->
-                    div [] [ Html.h1 [] [ text "Choose a version to start" ] 
-                           , div [] [ Html.button [ onClick ( StartVersion "A" ) ] [ text "Version A" ] ]
-                           , div [] [ Html.button [ onClick ( StartVersion "B" ) ] [ text "Version B" ] ] ]
+            versionChooserScreen model
         Summary -> 
-                            div [] [ Html.h1 [] [ text "Summary" ]
-                                   , div [] [ text ( "Average reaction time " ++ toString ( round ( (List.sum model.rts ) / toFloat (List.length model.rts)))) ]
-                                   , div [ class "rtblock" ] [ text ( "List of reaction times: " ++ ( String.join ","    ( List.reverse ( List.map toString model.rts )))) ]
-                                   ]
+            summaryScreen model
         Experiment ->
-                    div [ class "versionA" ] [ Html.h1 [class "stimulus"] [ text ( Maybe.withDefault "<oops>" ( List.head model.objects )) ]  
-                           , span [ class "buttonAnimal" ] [ Html.button [ onClick StopTime ] [ text "Animal" ]  ]
-                           , span [ class "buttonPlant" ] [ Html.button [ onClick StopTime ] [ text "Plant" ]  ]
-                           , span [ class "buttonOther" ] [ Html.button [ onClick StopTime ] [ text "Other"  ]  ]
-                           ]
-                                                     
+            experimentScreen model
                     
 
 
