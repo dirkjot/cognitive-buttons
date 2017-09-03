@@ -39,8 +39,8 @@ type Screen
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        StartVersion versionLetter ->
-            ( { model | version = versionLetter}, Task.perform StartTimeAt Time.now )
+        StartVersion newVersion ->
+            ( { model | version = newVersion}, Task.perform StartTimeAt Time.now )
         StartTimeAt time ->
             ( { model | startTime = time, screen = Experiment }, Cmd.none )
         StopTime ->
@@ -66,24 +66,39 @@ update msg model =
 
 ---- VIEW ----
 
-
+versionChooserScreen : Model -> Html Msg
 versionChooserScreen model =
-    div [] [ Html.h1 [] [ text "Choose a version to start" ] 
-           , div [] [ Html.button [ onClick ( StartVersion "A" ) ] [ text "Version A" ] ]
-           , div [] [ Html.button [ onClick ( StartVersion "B" ) ] [ text "Version B" ] ] ]
-        
+    div [] [
+         Html.h1 [] [ text "Choose a version to start" ] ,
+         div [] [
+              Html.button [ onClick ( StartVersion "versionA" ) ] [ text "Version A" ] ] ,
+         div [] [
+              Html.button [ onClick ( StartVersion "versionB" ) ] [ text "Version B" ] ] ]
+
+experimentScreen : Model -> Html Msg
 experimentScreen model =
-    div [ class "versionA" ] [ Html.h1 [class "stimulus"] [ text ( Maybe.withDefault "<oops>" ( List.head model.objects )) ]  
-                             , span [ class "buttonAnimal" ] [ Html.button [ onClick StopTime ] [ text "Animal" ]  ]
-                             , span [ class "buttonPlant" ] [ Html.button [ onClick StopTime ] [ text "Plant" ]  ]
-                             , span [ class "buttonOther" ] [ Html.button [ onClick StopTime ] [ text "Other"  ]  ]
+    div [ class model.version ] [
+         Html.h1 [class "stimulus"] [ text ( Maybe.withDefault "<oops>" ( List.head model.objects )) ]  ,
+         span [ class "buttonAnimal" ] [
+              Html.button [ onClick StopTime ] [ text "Animal" ]  ] ,
+         span [ class "buttonPlant" ] [
+              Html.button [ onClick StopTime ] [ text "Plant" ]  ] ,
+         span [ class "buttonOther" ] [
+              Html.button [ onClick StopTime ] [ text "Other"  ]  ]
                              ]
         
-        
+summaryScreen : Model -> Html Msg 
 summaryScreen model =
-    div [] [ Html.h1 [] [ text "Summary" ]
-           , div [] [ text ( "Average reaction time " ++ toString ( round ( (List.sum model.rts ) / toFloat (List.length model.rts)))) ]
-           , div [ class "rtblock" ] [ text ( "List of reaction times: " ++ ( String.join ","    ( List.reverse ( List.map toString model.rts )))) ]
+    let
+        averageRT = round ((List.sum model.rts ) / toFloat (List.length model.rts))
+        listRTs = String.join "," ( List.reverse ( List.map toString model.rts ))              
+    in 
+        div [] [
+             Html.h1 [] [ text "Summary" ] ,
+                 div [] [
+                      text ( "Average reaction time " ++ toString averageRT ) ] ,
+                 div [ class "rtblock" ] [
+                      text ( "List of reaction times: " ++ listRTs ) ]
            ]
         
         
