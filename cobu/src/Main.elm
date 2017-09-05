@@ -1,6 +1,6 @@
 module Main exposing (..)
 import Task exposing (..)
-import Html exposing (Html, text, div, img, span)
+import Html exposing (Html, text, div, img, span, p)
 import Html.Attributes exposing (src, class, style)
 import Html.Events exposing (onClick)
 import Time exposing (now, Time)
@@ -109,6 +109,40 @@ update msg model =
 
 ---- VIEW ----
 
+
+
+check = span [class "check" ] []
+
+cross = span [class "cross"] []
+        
+                     
+
+formatReaction : Reaction -> Html msg
+formatReaction reaction =
+    case reaction.correct of
+        True -> span [] [check, text (toString reaction.rt)]
+        False -> span [] [cross, text (toString reaction.rt)]
+                
+computeAverages : List Reaction -> ( Int, Int)
+computeAverages reactionList =
+    let
+        (right, wrong) = List.partition .correct reactionList
+    in
+        (
+         round ( toFloat (List.sum (List.map .rt right)) /
+                 toFloat( List.length right)),
+         round ( toFloat (List.sum (List.map .rt wrong)) /
+                 toFloat( List.length wrong))
+        )
+
+computeAccuracy : List Reaction -> String
+computeAccuracy reactionList =
+    toString ( round (
+            toFloat ( List.length ( List.filter .correct reactionList) * 100 ) /
+            toFloat ( List.length reactionList))) ++
+    "% "
+    
+                 
 versionChooserScreen : Model -> Html Msg
 versionChooserScreen model =
     div [] [
@@ -137,15 +171,23 @@ summaryScreen : Model -> Html Msg
 summaryScreen model =
     let
         averageRT = round ((List.sum model.rts ) / toFloat (List.length model.rts))
-        listRTs = String.join "," ( List.reverse ( List.map toString model.rts ))              
+        listRTs = String.join "," ( List.reverse ( List.map toString model.rts ))
+        formattedReactions = List.reverse (List.map formatReaction model.reactions )
+        (rightM, wrongM) = computeAverages model.reactions
+                  
     in 
         div [] [
              Html.h1 [] [ text "Summary" ] ,
-                 div [] [
-                      text ( "Average reaction time " ++ toString averageRT ) ] ,
-                 div [ class "rtblock" ] [
-                      text ( "List of reaction times: " ++ listRTs ) ]
-           ]
+             div [] [
+                  p  [] [text "Accuracy:  "],
+                  p [] [ text (computeAccuracy model.reactions) ],
+                  p  [] [text "Average reaction time for correct and incorrect:  "],
+                  p [] [ check,  text ( toString rightM), cross, text( toString wrongM ) ]
+                 ] ,
+             div [ class "rtblock" ] [
+                  p [] [ text "List of reaction times: "],
+                  p [] formattedReactions  
+                 ]]
         
         
 view : Model -> Html Msg

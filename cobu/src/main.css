@@ -75,4 +75,14 @@ div.rtblock {
     
 }
 
+span.check:after {
+    content: " \2713";
+    color: green;
+}
+
+span.cross:after {
+    content: " \2717";
+    color: red;
+    
+}
 
