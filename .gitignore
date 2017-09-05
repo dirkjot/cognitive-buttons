@@ -1,5 +1,7 @@
 node_modules/
 *~
+old_*/
+
 # Distribution
 build/
 
