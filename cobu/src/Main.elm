@@ -5,7 +5,6 @@ import Html.Attributes exposing (src, class, style)
 import Html.Events exposing (onClick)
 import Time exposing (now, Time)
 
----- MODEL ----
 
 type Answer =
     Animal | Plant | Other
@@ -17,20 +16,36 @@ type alias Prompt = {
 
 type alias Model = {
         screen : Screen,
-        version : String,  -- TODO ignored for now
+        version : String,  
         objects : List Prompt,
         rts : List Time,
-        startTime : Time}    
+        reactions : List Reaction,
+        startTime : Time,
+        lastAnswer : Answer}  -- should be Maybe Answer    
 
 
+type Msg 
+    = StartVersion String | StartTimeAt Time | StopTime  Answer | NextObject Time
+
+type Screen
+    = VersionChooser | Experiment | Summary
+
+type alias Reaction = {
+        rt : Int,
+        correct : Bool }
+      
+---- MODEL ----
+
+      
 init : ( Model, Cmd Msg )
 init =
     ( { screen = VersionChooser
       , version = ""
-      -- , objects = [ "platypus", "daisy", "brick"  ]
       , objects = [Prompt "platipus" Animal, Prompt "daisy" Plant, Prompt "brick" Other ]
       , rts = []
-      , startTime = 0 }
+      , reactions = []
+      , startTime = 0
+      , lastAnswer = Other }  
     , Cmd.none )
 
 
@@ -38,13 +53,7 @@ init =
 ---- UPDATE ----
 
 
-type Msg 
-    = StartVersion String | StartTimeAt Time | StopTime  | NextObject Time
-
-type Screen
-    = VersionChooser | Experiment | Summary
-
-nextObjectUpdate model time =
+nextObjectUpdateOLD model time =
             if List.length model.objects > 1
                 then
                     ( { model | screen = Experiment
@@ -58,6 +67,28 @@ nextObjectUpdate model time =
                                      , rts = (time - model.startTime) :: model.rts
                                      , startTime = 0}
                       , Cmd.none )
+
+nextObjectUpdate : Model -> Time -> (Model, Cmd Msg )
+nextObjectUpdate model time =
+    
+    let
+        rt = (time - model.startTime)
+        correct = (.answer (Maybe.withDefault (Prompt "" Animal) (List.head model.objects))) == model.lastAnswer -- not pretty TODO
+        newObjects = List.drop 1 model.objects
+        newReaction = Reaction (round (time - model.startTime)) correct
+        newScreen = if List.length model.objects > 1
+                    then
+                        Experiment
+                    else
+                        Summary
+                      
+    in
+        ( { model | screen = newScreen,
+                    objects = newObjects,
+                    rts = (time - model.startTime) :: model.rts,
+                    reactions = newReaction :: model.reactions,
+                    startTime = time},
+             Cmd.none )
     
 
       
@@ -68,8 +99,8 @@ update msg model =
             ( { model | version = newVersion}, Task.perform StartTimeAt Time.now )
         StartTimeAt time ->
             ( { model | startTime = time, screen = Experiment }, Cmd.none )
-        StopTime ->
-            (model, Task.perform NextObject Time.now )
+        StopTime answer ->
+            ( { model | lastAnswer = answer}, Task.perform NextObject Time.now) 
         NextObject time ->
             nextObjectUpdate model time
                  
@@ -95,11 +126,11 @@ experimentScreen model =
         div [ class model.version ] [
              Html.h1 [class "stimulus"] [ text promptName ] ,
                  span [ class "buttonAnimal" ] [
-                      Html.button [ onClick StopTime ] [ text "Animal" ]  ] ,
+                      Html.button [ onClick (StopTime Animal) ] [ text "Animal" ]  ] ,
                  span [ class "buttonPlant" ] [
-                      Html.button [ onClick StopTime ] [ text "Plant" ]  ] ,
+                      Html.button [ onClick (StopTime Plant) ] [ text "Plant" ]  ] ,
                  span [ class "buttonOther" ] [
-                      Html.button [ onClick StopTime ] [ text "Other"  ]  ]
+                      Html.button [ onClick (StopTime Other) ] [ text "Other"  ]  ]
                              ]
         
 summaryScreen : Model -> Html Msg 
