@@ -25,7 +25,7 @@ type alias Model = {
 
 
 type Msg 
-    = StartVersion String | StartTimeAt Time | StopTime  Answer | NextObject Time
+    = StartVersion String | StartTimeAt Time | StopTime  Answer | NextObject Time | Restart
 
 type Screen
     = VersionChooser | Experiment | Summary
@@ -52,21 +52,6 @@ init =
 
 ---- UPDATE ----
 
-
-nextObjectUpdateOLD model time =
-            if List.length model.objects > 1
-                then
-                    ( { model | screen = Experiment
-                                     , objects = (List.drop 1 model.objects)
-                                     , rts = (time - model.startTime) :: model.rts
-                                     , startTime = time}
-                      , Cmd.none )
-                else
-                    ( { model | screen = Summary
-                                     , objects = [] 
-                                     , rts = (time - model.startTime) :: model.rts
-                                     , startTime = 0}
-                      , Cmd.none )
 
 nextObjectUpdate : Model -> Time -> (Model, Cmd Msg )
 nextObjectUpdate model time =
@@ -103,6 +88,8 @@ update msg model =
             ( { model | lastAnswer = answer}, Task.perform NextObject Time.now) 
         NextObject time ->
             nextObjectUpdate model time
+        Restart ->
+            init
                  
 
 
@@ -110,9 +97,10 @@ update msg model =
 ---- VIEW ----
 
 
-
+check : Html msg
 check = span [class "check" ] []
 
+cross : Html msg
 cross = span [class "cross"] []
         
                      
@@ -152,6 +140,7 @@ versionChooserScreen model =
          div [] [
               Html.button [ onClick ( StartVersion "versionB" ) ] [ text "Version B" ] ] ]
 
+        
 experimentScreen : Model -> Html Msg
 experimentScreen model =
     let
@@ -177,17 +166,21 @@ summaryScreen model =
                   
     in 
         div [] [
-             Html.h1 [] [ text "Summary" ] ,
-             div [] [
-                  p  [] [text "Accuracy:  "],
-                  p [] [ text (computeAccuracy model.reactions) ],
-                  p  [] [text "Average reaction time for correct and incorrect:  "],
-                  p [] [ check,  text ( toString rightM), cross, text( toString wrongM ) ]
-                 ] ,
-             div [ class "rtblock" ] [
+            Html.h1 [] [ text "Summary" ] ,
+            div [] [
+                  p  [] [text "Accuracy:  " ,
+                         text (computeAccuracy model.reactions) ],
+                  p  [] [text "Average reaction times: ",
+                         check,  text ( toString rightM),
+                         cross, text( toString wrongM ) ]
+                ],
+            div [ class "rtblock" ] [
                   p [] [ text "List of reaction times: "],
                   p [] formattedReactions  
-                 ]]
+                ],
+            div [] [
+                 Html.button [ onClick Restart ] [ text "Restart" ]]
+            ]
         
         
 view : Model -> Html Msg
