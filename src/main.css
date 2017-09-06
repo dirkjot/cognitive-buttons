@@ -72,7 +72,12 @@ div.versionA  span.buttonOther button {
 div.rtblock {
     margin-top: 50px;
     font-size: 12pt;
-    
+}
+
+p.instructions {
+    margin: 50px 150px 0 150px;
+    font-size: 12pt;
+    text-align: left;
 }
 
 span.check:after {
@@ -83,6 +88,5 @@ span.check:after {
 span.cross:after {
     content: " \2717";
     color: red;
-    
-}
 
+}
