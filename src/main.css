@@ -1,5 +1,10 @@
 body {
-  font-family: 'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif;
+  font-family: Source Sans Pro,
+    Trebuchet MS,
+    Lucida Grande,
+    Bitstream Vera Sans,
+    Helvetica Neue,
+    sans-serif;
   font-size: 30px;
   margin: 0;
   text-align: center;
@@ -12,81 +17,108 @@ img {
 }
 
 button:focus {
-  outline: none
+  outline: none;
 }
 
-
-h1   {
-    color: darkgray;
-    padding: 100px 0 100px 0;
+h1 {
+  color: #a9a9a9;
 }
 
-h1.stimulus   {
-    color: black;
-    padding: 100px 0 100px 0;
+h1.stimulus {
+  color: #000;
 }
 
 button {
-    appearance: none;
-    box-shadow: none;
-    border-radius: 0;
-
-    width : 100px;
-    height : 50px;
-    background-color: lightgrey;
-    border: none;
-    margin: 50px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  border-radius: 0;
+  width: 100px;
+  height: 50px;
+  background-color: #d3d3d3;
+  border: none;
+  margin: 30px;
 }
 
+@media screen and (min-width: 880px) {
+  div.container {
+  background-color: white;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  }
 
-div.versionA  span.buttonAnimal button {
-    width : 160px;
-    height : 90px;
-    margin: 50px;
-    color: black;
-    font-size: 18pt;
-    background: rgba(0,0,0,0);
-    border: solid 5px darkblue;
-}
-
-div.versionA  span.buttonPlant button {
-    width : 160px;
-    height : 90px;
-    margin: 50px;
-    color: black;
-    font-size: 18pt;
-    background: rgba(0,0,0,0);
-    border: solid 5px darkgreen;
-}
-
-div.versionA  span.buttonOther button {
-    width : 160px;
-    height : 90px;
-    margin: 50px;
-    color: black;
-    font-size: 18pt;
-    background: rgba(0,0,0,0);
-    border: solid 5px darkred;
-}
-
-div.rtblock {
-    margin-top: 50px;
-    font-size: 12pt;
-}
-
-p.instructions {
-    margin: 50px 150px 0 150px;
+  p.instructions {
+    margin: 50px 150px 0;
     font-size: 12pt;
     text-align: left;
+  }
+
+  div.rtblock {
+    margin: 50px 150px 0;
+    font-size: 12pt;
+  }
+
 }
 
+@media screen and (max-width: 880px) {
+  div.container {
+    background-color: white;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+  }
+
+  p.instructions {
+    margin: 30px 30px 0;
+    font-size: 12pt;
+    text-align: left;
+  }
+
+  body {
+    font-size: 18pt;
+  }
+
+  div.rtblock {
+    margin: 30px 30px 0;
+    font-size: 12pt;
+  }
+
+}
+
+span {
+  flex: 0 1 auto;
+}
+
+div.versionA span.buttonAnimal button {
+  border: 5px solid #00008b;
+}
+
+div.versionA span.buttonAnimal button, div.versionA span.buttonPlant button, div.versionA span.buttonOther button {
+  width: 160px;
+  height: 80px;
+  color: #000;
+  font-size: 18pt;
+  background: transparent;
+}
+
+div.versionA span.buttonPlant button {
+  border: 5px solid #006400;
+}
+
+div.versionA span.buttonOther button {
+  border: 5px solid darkred;
+}
+
+
 span.check:after {
-    content: " \2713";
-    color: green;
+  content: " \2713";
+  color: green;
 }
 
 span.cross:after {
-    content: " \2717";
-    color: red;
-
+  content: " \2717";
+  color: red;
 }

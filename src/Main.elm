@@ -175,14 +175,15 @@ experimentScreen model =
         promptName = .name (Maybe.withDefault (Prompt "" Other)  (List.head model.objects))
     in
         div [class model.version] [
-             Html.h1 [class "stimulus"] [text promptName] ,
+           Html.h1 [class "stimulus"] [text promptName] ,
+           div [class "container"] [
                  span [class "buttonAnimal"] [
                       Html.button [onClick (StopTime Animal)] [text "Animal"]] ,
                  span [class "buttonPlant"] [
                       Html.button [onClick (StopTime Plant)] [text "Plant"]] ,
                  span [class "buttonOther"] [
                       Html.button [onClick (StopTime Other)] [text "Other"]]
-            ]
+            ]]
 
 summaryScreen : Model -> Html Msg
 summaryScreen model =
@@ -197,8 +198,9 @@ summaryScreen model =
                   p  [] [text "Accuracy:  " ,
                          text (computeAccuracy model.reactions)],
                   p  [] [text "Average reaction times: ",
-                         check,  text (toString rightM),
-                         cross, text (toString wrongM)]
+                         span [style [("white-space", "nowrap")]] [ 
+                             check,  text (toString rightM),
+                             cross, text (toString wrongM)]]
             ],
             div [class "rtblock"] [
                   p [] [text "List of reaction times: "],
