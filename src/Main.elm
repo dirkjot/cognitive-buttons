@@ -47,11 +47,11 @@ wordlist = [
     Prompt "watch" Other,
     Prompt "motorcycle" Other,
     Prompt "mouse" Animal,
-    Prompt "pointsettia" Plant,
+    Prompt "poinsettia" Plant,
     Prompt "boomerang" Other,
     Prompt "ostrich" Animal,
     Prompt "lamp" Other,
-    Prompt "racoon" Animal,
+    Prompt "raccoon" Animal,
     Prompt "conifer" Plant,
     Prompt "lion" Animal,
     Prompt "peacock" Animal,
@@ -136,9 +136,9 @@ formatReaction : Reaction -> Html msg
 formatReaction reaction =
     case reaction.correct of
         True ->
-          span [] [check, text (toString reaction.rt)]
+          span [] [check, text (toString reaction.rt), text ", "]
         False ->
-          span [] [cross, text (toString reaction.rt)]
+          span [] [cross, text (toString reaction.rt), text ", "]
 
 computeAverages : List Reaction -> (Int, Int)
 computeAverages reactionList =
@@ -195,11 +195,13 @@ summaryScreen model =
         div [] [
             Html.h1 [] [text "Summary"] ,
             div [] [
+                  p  [] [text ("Version: " ++ (String.slice 7 8 model.version ))],
                   p  [] [text "Accuracy:  " ,
                          text (computeAccuracy model.reactions)],
                   p  [] [text "Average reaction times: ",
-                         span [style [("white-space", "nowrap")]] [ 
+                         span [style [("white-space", "nowrap")]] [
                              check,  text (toString rightM),
+                             text ", ",
                              cross, text (toString wrongM)]]
             ],
             div [class "rtblock"] [
